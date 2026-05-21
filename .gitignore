@@ -1,0 +1,17 @@
+bin/
+obj/
+
+.vs/
+.vscode/
+
+*.user
+*.suo
+*.rsuser
+
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+*.nupkg
+packages/
