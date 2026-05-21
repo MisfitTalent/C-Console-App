@@ -6,6 +6,14 @@ This document maps the console application to the first submission requirements.
 
 Submission 1 focuses on the core backend functionality of the Online Shopping System. The application is implemented as a C# console app and stores data in memory using collections.
 
+## Folder Structure
+
+- `Console/`: numbered menus, input handling, and display rendering.
+- `Domain/`: core entities and enums used by the shopping system.
+- `Infrastructure/`: in-memory data storage and startup seed data.
+- `Services/Contracts/`: interfaces that describe application operations.
+- `Services/Implementations/`: service classes that implement business logic.
+
 ## Rubric Mapping
 
 | Criteria | Evidence in project |

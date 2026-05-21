@@ -37,6 +37,14 @@ The application separates domain models, service interfaces, service implementat
 
 Data is stored in memory because the specification asks for a console-based backend simulation using collections such as `List<T>`.
 
+## Project Structure
+
+- `Console/` contains menu flow, console input validation, and rendering helpers.
+- `Domain/` contains business objects such as users, products, carts, orders, payments, reviews, and reports.
+- `Infrastructure/` contains the in-memory data store and seed data.
+- `Services/Contracts/` contains service interfaces.
+- `Services/Implementations/` contains business service implementations.
+
 ## Run
 
 ```powershell
