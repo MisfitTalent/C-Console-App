@@ -18,7 +18,7 @@ public sealed class ShoppingConsoleApplication
         var reportService = new ReportService(store);
 
         _userService = new UserService(store);
-        _customerMenu = new CustomerMenu(productService, orderService);
+        _customerMenu = new CustomerMenu(productService, orderService, _userService);
         _administratorMenu = new AdministratorMenu(productService, orderService, reportService);
     }
 

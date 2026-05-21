@@ -7,11 +7,13 @@ public sealed class CustomerMenu
 {
     private readonly IProductService _productService;
     private readonly IOrderService _orderService;
+    private readonly IUserService _userService;
 
-    public CustomerMenu(IProductService productService, IOrderService orderService)
+    public CustomerMenu(IProductService productService, IOrderService orderService, IUserService userService)
     {
         _productService = productService;
         _orderService = orderService;
+        _userService = userService;
     }
 
     /// <summary>
@@ -208,7 +210,7 @@ public sealed class CustomerMenu
         Console.WriteLine($"Wallet balance: {customer.WalletBalance:C}");
     }
 
-    private static void AddWalletFunds(Customer customer)
+    private void AddWalletFunds(Customer customer)
     {
         if (!ConsoleInput.TryReadMoney("Amount:", out var amount))
         {
@@ -217,6 +219,7 @@ public sealed class CustomerMenu
         }
 
         customer.AddWalletFunds(amount);
+        _userService.SaveUsers();
         Console.WriteLine($"Wallet balance: {customer.WalletBalance:C}");
     }
 

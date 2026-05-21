@@ -42,8 +42,15 @@ Data is stored in memory because the specification asks for a console-based back
 - `Console/` contains menu flow, console input validation, and rendering helpers.
 - `Domain/` contains business objects such as users, products, carts, orders, payments, reviews, and reports.
 - `Infrastructure/` contains the in-memory data store and seed data.
+- `Infrastructure/Persistence/` contains JSON persistence for users.
 - `Services/Contracts/` contains service interfaces.
 - `Services/Implementations/` contains business service implementations.
+
+## Data Persistence
+
+Registered users are saved to `Data/Users.json` so they can log in again after the console application is closed and restarted.
+
+Products, orders, and payments are still stored in memory for the current application session.
 
 ## Run
 
