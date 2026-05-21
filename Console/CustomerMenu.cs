@@ -104,15 +104,30 @@ public sealed class CustomerMenu
 
     private void SearchProducts()
     {
-        var searchTerm = ConsoleInput.ReadRequiredText("Search: ");
+        if (!ConsoleInput.TryReadRequiredText("Search:", out var searchTerm))
+        {
+            Console.WriteLine("Search cancelled.");
+            return;
+        }
+
         ConsoleRenderer.PrintProducts(_productService.SearchProducts(searchTerm));
     }
 
     private void AddProductToCart(Customer customer)
     {
         ConsoleRenderer.PrintProducts(_productService.GetProducts());
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
-        var quantity = ConsoleInput.ReadInt("Quantity: ", 1, int.MaxValue);
+        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        {
+            Console.WriteLine("Add to cart cancelled.");
+            return;
+        }
+
+        if (!ConsoleInput.TryReadInt("Quantity:", 1, int.MaxValue, out var quantity))
+        {
+            Console.WriteLine("Add to cart cancelled.");
+            return;
+        }
+
         var product = _productService.GetProductById(productId);
 
         if (product is null)
@@ -145,10 +160,19 @@ public sealed class CustomerMenu
             return;
         }
 
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
+        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        {
+            Console.WriteLine("Cart update cancelled.");
+            return;
+        }
+
         Console.WriteLine("1. Change quantity");
         Console.WriteLine("2. Remove product");
-        var choice = ConsoleInput.ReadInt("Select option: ", 1, 2);
+        if (!ConsoleInput.TryReadInt("Select option:", 1, 2, out var choice))
+        {
+            Console.WriteLine("Cart update cancelled.");
+            return;
+        }
 
         if (choice == 2)
         {
@@ -156,7 +180,12 @@ public sealed class CustomerMenu
             return;
         }
 
-        var quantity = ConsoleInput.ReadInt("New quantity: ", 1, int.MaxValue);
+        if (!ConsoleInput.TryReadInt("New quantity:", 1, int.MaxValue, out var quantity))
+        {
+            Console.WriteLine("Cart update cancelled.");
+            return;
+        }
+
         Console.WriteLine(customer.Cart.UpdateProductQuantity(productId, quantity)
             ? "Cart updated."
             : "Product not found in cart.");
@@ -181,7 +210,12 @@ public sealed class CustomerMenu
 
     private static void AddWalletFunds(Customer customer)
     {
-        var amount = ConsoleInput.ReadMoney("Amount: ");
+        if (!ConsoleInput.TryReadMoney("Amount:", out var amount))
+        {
+            Console.WriteLine("Wallet funding cancelled.");
+            return;
+        }
+
         customer.AddWalletFunds(amount);
         Console.WriteLine($"Wallet balance: {customer.WalletBalance:C}");
     }
@@ -200,9 +234,23 @@ public sealed class CustomerMenu
     private void ReviewProduct(Customer customer)
     {
         ConsoleRenderer.PrintProducts(_productService.GetProducts());
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
-        var rating = ConsoleInput.ReadInt("Rating (1-5): ", 1, 5);
-        var comment = ConsoleInput.ReadRequiredText("Comment: ");
+        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        {
+            Console.WriteLine("Review cancelled.");
+            return;
+        }
+
+        if (!ConsoleInput.TryReadInt("Rating (1-5):", 1, 5, out var rating))
+        {
+            Console.WriteLine("Review cancelled.");
+            return;
+        }
+
+        if (!ConsoleInput.TryReadRequiredText("Comment:", out var comment))
+        {
+            Console.WriteLine("Review cancelled.");
+            return;
+        }
 
         _productService.AddReview(customer, productId, rating, comment);
         Console.WriteLine("Review added.");
