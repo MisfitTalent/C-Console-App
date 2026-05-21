@@ -44,6 +44,7 @@ public sealed class UserService : IUserService
             : new Customer(_store.GetNextUserId(), name.Trim(), normalizedUsername, password);
 
         _store.Users.Add(user);
+        _store.SaveUsers();
         return user;
     }
 
@@ -53,5 +54,11 @@ public sealed class UserService : IUserService
         return _store.Users.FirstOrDefault(user =>
             user.Username.Equals(username.Trim(), StringComparison.OrdinalIgnoreCase)
             && user.Password == password);
+    }
+
+    /// <inheritdoc />
+    public void SaveUsers()
+    {
+        _store.SaveUsers();
     }
 }

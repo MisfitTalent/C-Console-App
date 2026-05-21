@@ -42,6 +42,7 @@ public sealed class OrderService : IOrderService
 
         _store.Orders.Add(order);
         customer.Cart.Clear();
+        _store.SaveUsers();
         return order;
     }
 
