@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace OnlineShoppingSystem;
 
 /// <summary>
-/// Persists application users to a local JSON file.
+/// Persists payments to a local JSON file.
 /// </summary>
-public sealed class UserJsonStore
+public sealed class PaymentJsonStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -16,15 +16,15 @@ public sealed class UserJsonStore
 
     private readonly string _filePath;
 
-    public UserJsonStore(string filePath)
+    public PaymentJsonStore(string filePath)
     {
         _filePath = filePath;
     }
 
     /// <summary>
-    /// Loads users from the configured JSON file.
+    /// Loads payments from the configured JSON file.
     /// </summary>
-    public IReadOnlyCollection<User> LoadUsers(IReadOnlyCollection<Product> products)
+    public IReadOnlyCollection<Payment> LoadPayments()
     {
         if (!File.Exists(_filePath))
         {
@@ -37,14 +37,14 @@ public sealed class UserJsonStore
             return [];
         }
 
-        var storedUsers = JsonSerializer.Deserialize<List<StoredUser>>(json, JsonOptions) ?? [];
-        return storedUsers.Select(storedUser => storedUser.ToUser(products)).ToList();
+        var storedPayments = JsonSerializer.Deserialize<List<StoredPayment>>(json, JsonOptions) ?? [];
+        return storedPayments.Select(storedPayment => storedPayment.ToPayment()).ToList();
     }
 
     /// <summary>
-    /// Saves users to the configured JSON file.
+    /// Saves payments to the configured JSON file.
     /// </summary>
-    public void SaveUsers(IEnumerable<User> users)
+    public void SavePayments(IEnumerable<Payment> payments)
     {
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrWhiteSpace(directory))
@@ -52,8 +52,8 @@ public sealed class UserJsonStore
             Directory.CreateDirectory(directory);
         }
 
-        var storedUsers = users.Select(StoredUser.FromUser).ToList();
-        var json = JsonSerializer.Serialize(storedUsers, JsonOptions);
+        var storedPayments = payments.Select(StoredPayment.FromPayment).ToList();
+        var json = JsonSerializer.Serialize(storedPayments, JsonOptions);
         File.WriteAllText(_filePath, json);
     }
 }

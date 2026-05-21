@@ -145,6 +145,7 @@ public sealed class CustomerMenu
         }
 
         customer.Cart.AddProduct(product, quantity);
+        _userService.SaveUsers();
         Console.WriteLine("Product added to cart.");
     }
 
@@ -154,7 +155,7 @@ public sealed class CustomerMenu
         ConsoleRenderer.PrintCart(customer.Cart);
     }
 
-    private static void UpdateCart(Customer customer)
+    private void UpdateCart(Customer customer)
     {
         ConsoleRenderer.PrintCart(customer.Cart);
         if (customer.Cart.IsEmpty)
@@ -178,7 +179,16 @@ public sealed class CustomerMenu
 
         if (choice == 2)
         {
-            Console.WriteLine(customer.Cart.RemoveProduct(productId) ? "Product removed." : "Product not found in cart.");
+            if (customer.Cart.RemoveProduct(productId))
+            {
+                _userService.SaveUsers();
+                Console.WriteLine("Product removed.");
+            }
+            else
+            {
+                Console.WriteLine("Product not found in cart.");
+            }
+
             return;
         }
 
@@ -188,9 +198,14 @@ public sealed class CustomerMenu
             return;
         }
 
-        Console.WriteLine(customer.Cart.UpdateProductQuantity(productId, quantity)
-            ? "Cart updated."
-            : "Product not found in cart.");
+        if (customer.Cart.UpdateProductQuantity(productId, quantity))
+        {
+            _userService.SaveUsers();
+            Console.WriteLine("Cart updated.");
+            return;
+        }
+
+        Console.WriteLine("Product not found in cart.");
     }
 
     private void Checkout(Customer customer)

@@ -43,6 +43,9 @@ public sealed class OrderService : IOrderService
         _store.Orders.Add(order);
         customer.Cart.Clear();
         _store.SaveUsers();
+        _store.SaveProducts();
+        _store.SaveOrders();
+        _store.SavePayments();
         return order;
     }
 
@@ -73,6 +76,7 @@ public sealed class OrderService : IOrderService
         }
 
         order.UpdateStatus(status);
+        _store.SaveOrders();
         return true;
     }
 

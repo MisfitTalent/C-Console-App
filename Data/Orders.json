@@ -1,0 +1,36 @@
+[
+  {
+    "Id": 1,
+    "CustomerId": 2,
+    "CreatedAt": "2026-05-21T09:30:00",
+    "Status": "Delivered",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Laptop",
+        "UnitPrice": 899.99,
+        "Quantity": 1
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "CustomerId": 3,
+    "CreatedAt": "2026-05-21T11:00:00",
+    "Status": "Processing",
+    "Items": [
+      {
+        "ProductId": 2,
+        "ProductName": "Wireless Mouse",
+        "UnitPrice": 29.99,
+        "Quantity": 2
+      },
+      {
+        "ProductId": 3,
+        "ProductName": "Coffee Beans",
+        "UnitPrice": 14.50,
+        "Quantity": 3
+      }
+    ]
+  }
+]

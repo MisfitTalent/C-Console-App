@@ -6,6 +6,11 @@ namespace OnlineShoppingSystem;
 public sealed class Order
 {
     public Order(int id, int customerId, IReadOnlyCollection<OrderItem> items)
+        : this(id, customerId, items, DateTime.Now, OrderStatus.Pending)
+    {
+    }
+
+    public Order(int id, int customerId, IReadOnlyCollection<OrderItem> items, DateTime createdAt, OrderStatus status)
     {
         if (items.Count == 0)
         {
@@ -15,8 +20,8 @@ public sealed class Order
         Id = id;
         CustomerId = customerId;
         Items = items;
-        CreatedAt = DateTime.Now;
-        Status = OrderStatus.Pending;
+        CreatedAt = createdAt;
+        Status = status;
     }
 
     public int Id { get; }

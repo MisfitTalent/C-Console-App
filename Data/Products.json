@@ -1,0 +1,60 @@
+[
+  {
+    "Id": 1,
+    "Name": "Laptop",
+    "Description": "Portable work machine",
+    "Category": "Electronics",
+    "Price": 899.99,
+    "StockQuantity": 7,
+    "ReorderLevel": 2,
+    "Reviews": [
+      {
+        "Id": 1,
+        "CustomerId": 2,
+        "ProductId": 1,
+        "Rating": 5,
+        "Comment": "Reliable laptop for daily work.",
+        "CreatedAt": "2026-05-21T09:35:00"
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "Name": "Wireless Mouse",
+    "Description": "Bluetooth mouse",
+    "Category": "Electronics",
+    "Price": 29.99,
+    "StockQuantity": 23,
+    "ReorderLevel": 5,
+    "Reviews": [
+      {
+        "Id": 2,
+        "CustomerId": 3,
+        "ProductId": 2,
+        "Rating": 4,
+        "Comment": "Comfortable and responsive.",
+        "CreatedAt": "2026-05-21T11:15:00"
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "Name": "Coffee Beans",
+    "Description": "Premium roasted beans",
+    "Category": "Groceries",
+    "Price": 14.50,
+    "StockQuantity": 37,
+    "ReorderLevel": 10,
+    "Reviews": []
+  },
+  {
+    "Id": 4,
+    "Name": "Desk Chair",
+    "Description": "Ergonomic office chair",
+    "Category": "Furniture",
+    "Price": 179.00,
+    "StockQuantity": 5,
+    "ReorderLevel": 2,
+    "Reviews": []
+  }
+]

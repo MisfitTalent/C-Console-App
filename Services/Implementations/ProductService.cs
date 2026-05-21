@@ -17,6 +17,7 @@ public sealed class ProductService : IProductService
     {
         var product = new Product(_store.GetNextProductId(), name, description, category, price, stockQuantity, reorderLevel);
         _store.Products.Add(product);
+        _store.SaveProducts();
         return product;
     }
 
@@ -30,6 +31,7 @@ public sealed class ProductService : IProductService
         }
 
         product.UpdateDetails(name, description, category, price, stockQuantity, reorderLevel);
+        _store.SaveProducts();
         return true;
     }
 
@@ -37,7 +39,13 @@ public sealed class ProductService : IProductService
     public bool DeleteProduct(int productId)
     {
         var product = GetProductById(productId);
-        return product is not null && _store.Products.Remove(product);
+        if (product is null || !_store.Products.Remove(product))
+        {
+            return false;
+        }
+
+        _store.SaveProducts();
+        return true;
     }
 
     /// <inheritdoc />
@@ -50,6 +58,7 @@ public sealed class ProductService : IProductService
         }
 
         product.Restock(quantity);
+        _store.SaveProducts();
         return true;
     }
 
@@ -109,6 +118,7 @@ public sealed class ProductService : IProductService
 
         var review = new Review(_store.GetNextReviewId(), customer.Id, productId, rating, comment);
         product.AddReview(review);
+        _store.SaveProducts();
         return review;
     }
 }

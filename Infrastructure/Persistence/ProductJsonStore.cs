@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace OnlineShoppingSystem;
 
 /// <summary>
-/// Persists application users to a local JSON file.
+/// Persists products and their reviews to a local JSON file.
 /// </summary>
-public sealed class UserJsonStore
+public sealed class ProductJsonStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -16,15 +16,15 @@ public sealed class UserJsonStore
 
     private readonly string _filePath;
 
-    public UserJsonStore(string filePath)
+    public ProductJsonStore(string filePath)
     {
         _filePath = filePath;
     }
 
     /// <summary>
-    /// Loads users from the configured JSON file.
+    /// Loads products from the configured JSON file.
     /// </summary>
-    public IReadOnlyCollection<User> LoadUsers(IReadOnlyCollection<Product> products)
+    public IReadOnlyCollection<Product> LoadProducts()
     {
         if (!File.Exists(_filePath))
         {
@@ -37,14 +37,14 @@ public sealed class UserJsonStore
             return [];
         }
 
-        var storedUsers = JsonSerializer.Deserialize<List<StoredUser>>(json, JsonOptions) ?? [];
-        return storedUsers.Select(storedUser => storedUser.ToUser(products)).ToList();
+        var storedProducts = JsonSerializer.Deserialize<List<StoredProduct>>(json, JsonOptions) ?? [];
+        return storedProducts.Select(storedProduct => storedProduct.ToProduct()).ToList();
     }
 
     /// <summary>
-    /// Saves users to the configured JSON file.
+    /// Saves products to the configured JSON file.
     /// </summary>
-    public void SaveUsers(IEnumerable<User> users)
+    public void SaveProducts(IEnumerable<Product> products)
     {
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrWhiteSpace(directory))
@@ -52,8 +52,8 @@ public sealed class UserJsonStore
             Directory.CreateDirectory(directory);
         }
 
-        var storedUsers = users.Select(StoredUser.FromUser).ToList();
-        var json = JsonSerializer.Serialize(storedUsers, JsonOptions);
+        var storedProducts = products.Select(StoredProduct.FromProduct).ToList();
+        var json = JsonSerializer.Serialize(storedProducts, JsonOptions);
         File.WriteAllText(_filePath, json);
     }
 }

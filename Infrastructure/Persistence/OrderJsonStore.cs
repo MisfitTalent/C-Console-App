@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace OnlineShoppingSystem;
 
 /// <summary>
-/// Persists application users to a local JSON file.
+/// Persists orders to a local JSON file.
 /// </summary>
-public sealed class UserJsonStore
+public sealed class OrderJsonStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -16,15 +16,15 @@ public sealed class UserJsonStore
 
     private readonly string _filePath;
 
-    public UserJsonStore(string filePath)
+    public OrderJsonStore(string filePath)
     {
         _filePath = filePath;
     }
 
     /// <summary>
-    /// Loads users from the configured JSON file.
+    /// Loads orders from the configured JSON file.
     /// </summary>
-    public IReadOnlyCollection<User> LoadUsers(IReadOnlyCollection<Product> products)
+    public IReadOnlyCollection<Order> LoadOrders()
     {
         if (!File.Exists(_filePath))
         {
@@ -37,14 +37,14 @@ public sealed class UserJsonStore
             return [];
         }
 
-        var storedUsers = JsonSerializer.Deserialize<List<StoredUser>>(json, JsonOptions) ?? [];
-        return storedUsers.Select(storedUser => storedUser.ToUser(products)).ToList();
+        var storedOrders = JsonSerializer.Deserialize<List<StoredOrder>>(json, JsonOptions) ?? [];
+        return storedOrders.Select(storedOrder => storedOrder.ToOrder()).ToList();
     }
 
     /// <summary>
-    /// Saves users to the configured JSON file.
+    /// Saves orders to the configured JSON file.
     /// </summary>
-    public void SaveUsers(IEnumerable<User> users)
+    public void SaveOrders(IEnumerable<Order> orders)
     {
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrWhiteSpace(directory))
@@ -52,8 +52,8 @@ public sealed class UserJsonStore
             Directory.CreateDirectory(directory);
         }
 
-        var storedUsers = users.Select(StoredUser.FromUser).ToList();
-        var json = JsonSerializer.Serialize(storedUsers, JsonOptions);
+        var storedOrders = orders.Select(StoredOrder.FromOrder).ToList();
+        var json = JsonSerializer.Serialize(storedOrders, JsonOptions);
         File.WriteAllText(_filePath, json);
     }
 }
