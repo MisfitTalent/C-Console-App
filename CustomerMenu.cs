@@ -90,6 +90,10 @@ public sealed class CustomerMenu
         {
             Console.WriteLine(exception.Message);
         }
+        finally
+        {
+            ConsoleInput.WaitForMenuReturn();
+        }
     }
 
     private void BrowseProducts()

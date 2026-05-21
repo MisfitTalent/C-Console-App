@@ -38,6 +38,10 @@ public static class ConsoleInput
             {
                 return value;
             }
+            else 
+            {
+                Console.WriteLine($"Enter a number between {minValue} and {maxValue}. Make it valid.");
+            }
 
             Console.WriteLine($"Enter a number between {minValue} and {maxValue}.");
         }
@@ -60,5 +64,15 @@ public static class ConsoleInput
 
             Console.WriteLine("Enter an amount greater than zero.");
         }
+    }
+
+    /// <summary>
+    /// Pauses the current view until the user chooses to return to the menu.
+    /// </summary>
+    public static void WaitForMenuReturn()
+    {
+        Console.WriteLine();
+        Console.Write("Press Enter to return to the menu...");
+        Console.ReadLine();
     }
 }

@@ -89,6 +89,10 @@ public sealed class AdministratorMenu
         {
             Console.WriteLine(exception.Message);
         }
+        finally
+        {
+            ConsoleInput.WaitForMenuReturn();
+        }
     }
 
     private void AddProduct()
