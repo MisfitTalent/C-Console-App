@@ -24,7 +24,7 @@ public sealed class UserJsonStore
     /// <summary>
     /// Loads users from the configured JSON file.
     /// </summary>
-    public IReadOnlyCollection<User> LoadUsers(IReadOnlyCollection<Product> products)
+    public IReadOnlyCollection<User> LoadUsers()
     {
         if (!File.Exists(_filePath))
         {
@@ -38,7 +38,7 @@ public sealed class UserJsonStore
         }
 
         var storedUsers = JsonSerializer.Deserialize<List<StoredUser>>(json, JsonOptions) ?? [];
-        return storedUsers.Select(storedUser => storedUser.ToUser(products)).ToList();
+        return storedUsers.Select(storedUser => storedUser.ToUser()).ToList();
     }
 
     /// <summary>

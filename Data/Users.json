@@ -5,8 +5,7 @@
     "Username": "admin",
     "Password": "admin123",
     "Role": "Administrator",
-    "WalletBalance": 0,
-    "CartItems": []
+    "WalletBalance": 0
   },
   {
     "Id": 2,
@@ -14,8 +13,7 @@
     "Username": "customer",
     "Password": "customer123",
     "Role": "Customer",
-    "WalletBalance": 600.01,
-    "CartItems": []
+    "WalletBalance": 600.01
   },
   {
     "Id": 3,
@@ -23,12 +21,6 @@
     "Username": "Kagiso",
     "Password": "1234",
     "Role": "Customer",
-    "WalletBalance": 199896.52,
-    "CartItems": [
-      {
-        "ProductId": 4,
-        "Quantity": 1
-      }
-    ]
+    "WalletBalance": 199896.52
   }
 ]

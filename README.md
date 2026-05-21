@@ -50,7 +50,7 @@ Data is stored in memory because the specification asks for a console-based back
 
 Application data is saved in local JSON files so the system can resume state after the console application is closed and restarted.
 
-- `Data/Users.json` stores users, wallet balances, and customer cart items.
+- `Data/Users.json` stores users and wallet balances.
 - `Data/Products.json` stores product catalog data, inventory, and reviews.
 - `Data/Orders.json` stores customer orders linked by `CustomerId`.
 - `Data/Payments.json` stores wallet payments linked by `OrderId` and `CustomerId`.

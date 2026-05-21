@@ -17,8 +17,6 @@ public sealed class StoredUser
 
     public decimal WalletBalance { get; set; }
 
-    public List<StoredCartItem> CartItems { get; set; } = [];
-
     /// <summary>
     /// Creates a stored user record from a runtime user object.
     /// </summary>
@@ -33,17 +31,14 @@ public sealed class StoredUser
             Username = user.Username,
             Password = user.Password,
             Role = user.Role,
-            WalletBalance = user is Customer customer ? customer.WalletBalance : 0,
-            CartItems = user is Customer cartOwner
-                ? cartOwner.Cart.Items.Select(StoredCartItem.FromCartItem).ToList()
-                : []
+            WalletBalance = user is Customer customer ? customer.WalletBalance : 0
         };
     }
 
     /// <summary>
     /// Creates the correct runtime user type from this stored record.
     /// </summary>
-    public User ToUser(IReadOnlyCollection<Product> products)
+    public User ToUser()
     {
         if (Role == UserRole.Administrator)
         {
@@ -56,39 +51,6 @@ public sealed class StoredUser
             customer.AddWalletFunds(WalletBalance);
         }
 
-        foreach (var cartItem in CartItems)
-        {
-            var product = products.FirstOrDefault(product => product.Id == cartItem.ProductId);
-            if (product is not null)
-            {
-                customer.Cart.AddProduct(product, cartItem.Quantity);
-            }
-        }
-
         return customer;
-    }
-}
-
-/// <summary>
-/// Represents a persisted cart item linked to a product by identifier.
-/// </summary>
-public sealed class StoredCartItem
-{
-    public int ProductId { get; set; }
-
-    public int Quantity { get; set; }
-
-    /// <summary>
-    /// Creates a stored cart item from a runtime cart item.
-    /// </summary>
-    public static StoredCartItem FromCartItem(CartItem cartItem)
-    {
-        ArgumentNullException.ThrowIfNull(cartItem);
-
-        return new StoredCartItem
-        {
-            ProductId = cartItem.Product.Id,
-            Quantity = cartItem.Quantity
-        };
     }
 }

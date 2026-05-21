@@ -11,7 +11,7 @@ public static class ConsoleRenderer
     public static void PrintHeader(string title)
     {
         Console.WriteLine();
-        Console.WriteLine($"=== {title} ===");
+        Console.WriteLine($"======== {title} ========");
     }
 
     /// <summary>

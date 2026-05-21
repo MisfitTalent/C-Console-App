@@ -117,7 +117,7 @@ public sealed class AppDataStore
 
     private void LoadUsers()
     {
-        var users = _userJsonStore.LoadUsers(Products);
+        var users = _userJsonStore.LoadUsers();
         if (users.Count == 0)
         {
             SeedUsers();
