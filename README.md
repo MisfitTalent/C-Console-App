@@ -29,11 +29,11 @@ The project demonstrates object-oriented programming, LINQ-based querying, excep
 
 Submission 1 is covered by the core backend functionality: authentication, role separation, product management, cart management, checkout, wallet payment, order tracking, inventory management, reporting, LINQ queries, validation, and a menu-driven console interface.
 
-Submission 2 is supported through architecture and design improvements: domain models are separated from services and console menus, behavior is expressed through interfaces, and payment processing uses a replaceable strategy-style abstraction through `IPaymentProcessor`.
+Submission 2 is supported through architecture and design improvements: domain models are separated from services and console menus, behavior is expressed through interfaces, user creation is centralized through a Factory pattern, persistence uses repository-style abstractions, and payment processing uses a replaceable Strategy pattern through `IPaymentProcessor`.
 
 ## Design Notes
 
-The application separates domain models, service interfaces, service implementations, and console menus. Payment processing is abstracted behind `IPaymentProcessor`, allowing other payment approaches to be added without changing order placement logic.
+The application separates domain models, service interfaces, service implementations, persistence repositories, and console menus. Payment processing is abstracted behind `IPaymentProcessor`, allowing other payment approaches to be added without changing order placement logic.
 
 Data is stored in memory because the specification asks for a console-based backend simulation using collections such as `List<T>`.
 
@@ -42,7 +42,7 @@ Data is stored in memory because the specification asks for a console-based back
 - `Console/` contains menu flow, console input validation, and rendering helpers.
 - `Domain/` contains business objects such as users, products, carts, orders, payments, reviews, and reports.
 - `Infrastructure/` contains the in-memory data store and seed data.
-- `Infrastructure/Persistence/` contains JSON persistence for users.
+- `Infrastructure/Persistence/` contains repository interfaces and JSON persistence implementations.
 - `Services/Contracts/` contains service interfaces.
 - `Services/Implementations/` contains business service implementations.
 

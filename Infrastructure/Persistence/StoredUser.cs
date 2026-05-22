@@ -38,19 +38,9 @@ public sealed class StoredUser
     /// <summary>
     /// Creates the correct runtime user type from this stored record.
     /// </summary>
-    public User ToUser()
+    public User ToUser(IUserFactory userFactory)
     {
-        if (Role == UserRole.Administrator)
-        {
-            return new Administrator(Id, Name, Username, Password);
-        }
-
-        var customer = new Customer(Id, Name, Username, Password);
-        if (WalletBalance > 0)
-        {
-            customer.AddWalletFunds(WalletBalance);
-        }
-
-        return customer;
+        ArgumentNullException.ThrowIfNull(userFactory);
+        return userFactory.Create(Id, Name, Username, Password, Role, WalletBalance);
     }
 }

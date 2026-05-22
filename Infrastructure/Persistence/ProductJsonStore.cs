@@ -6,7 +6,7 @@ namespace OnlineShoppingSystem;
 /// <summary>
 /// Persists products and their reviews to a local JSON file.
 /// </summary>
-public sealed class ProductJsonStore
+public sealed class ProductJsonStore : IProductRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
