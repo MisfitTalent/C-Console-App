@@ -37,6 +37,13 @@ The application separates domain models, service interfaces, service implementat
 
 Data is stored in memory because the specification asks for a console-based backend simulation using collections such as `List<T>`.
 
+Design pattern summary:
+
+- Factory Pattern: `IUserFactory` and `UserFactory` create role-specific users.
+- Strategy Pattern: `IPaymentProcessor` allows payment behavior to be replaced.
+- Repository Pattern: persistence interfaces separate storage contracts from JSON implementations.
+- DTO/Mapper Pattern: `Stored*` classes convert domain objects to JSON-friendly records.
+
 ## Project Structure
 
 - `Console/` contains menu flow, console input validation, and rendering helpers.
@@ -59,4 +66,18 @@ Application data is saved in local JSON files so the system can resume state aft
 
 ```powershell
 dotnet run
+```
+
+## Verify
+
+```powershell
+dotnet build
+```
+
+Expected result:
+
+```text
+Build succeeded.
+0 Warning(s)
+0 Error(s)
 ```
