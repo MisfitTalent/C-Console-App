@@ -206,6 +206,31 @@ public static class ConsoleInput
     }
 
     /// <summary>
+    /// Reads a decimal value within the provided range or returns false when the user chooses to go back.
+    /// </summary>
+    public static bool TryReadDecimal(string prompt, decimal minValue, decimal maxValue, out decimal value)
+    {
+        while (true)
+        {
+            Console.Write(WithBackHint(prompt));
+            var input = Console.ReadLine();
+
+            if (IsBackCommand(input))
+            {
+                value = default;
+                return false;
+            }
+
+            if (TryParseMoney(input, out value) && value >= minValue && value <= maxValue)
+            {
+                return true;
+            }
+
+            Console.WriteLine($"Enter a number between {minValue} and {maxValue}.");
+        }
+    }
+
+    /// <summary>
     /// Pauses the current view until the user chooses to return to the menu.
     /// </summary>
     public static void WaitForMenuReturn()

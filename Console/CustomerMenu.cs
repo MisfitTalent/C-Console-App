@@ -35,10 +35,11 @@ public sealed class CustomerMenu
             Console.WriteLine("9. View Order History");
             Console.WriteLine("10. Track Orders");
             Console.WriteLine("11. Review Products");
-            Console.WriteLine("12. Logout");
+            Console.WriteLine("12. View Payment History");
+            Console.WriteLine("13. Logout");
 
-            var choice = ConsoleInput.ReadInt("Select option: ", 1, 12);
-            if (choice == 12)
+            var choice = ConsoleInput.ReadInt("Select option: ", 1, 13);
+            if (choice == 13)
             {
                 return;
             }
@@ -86,6 +87,9 @@ public sealed class CustomerMenu
                 case 11:
                     ReviewProduct(customer);
                     break;
+                case 12:
+                    ViewPaymentHistory(customer);
+                    break;
             }
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
@@ -106,13 +110,29 @@ public sealed class CustomerMenu
 
     private void SearchProducts()
     {
-        if (!ConsoleInput.TryReadRequiredText("Search:", out var searchTerm))
+        Console.WriteLine("1. Search by keyword");
+        Console.WriteLine("2. Filter by category");
+        Console.WriteLine("3. Filter by price range");
+        Console.WriteLine("4. Filter by minimum rating");
+        Console.WriteLine("5. Show in-stock products");
+
+        if (!ConsoleInput.TryReadInt("Select search option:", 1, 5, out var choice))
         {
             Console.WriteLine("Search cancelled.");
             return;
         }
 
-        ConsoleRenderer.PrintProducts(_productService.SearchProducts(searchTerm));
+        var products = choice switch
+        {
+            1 => SearchByKeyword(),
+            2 => FilterByCategory(),
+            3 => FilterByPriceRange(),
+            4 => FilterByMinimumRating(),
+            5 => _productService.GetInStockProducts(),
+            _ => []
+        };
+
+        ConsoleRenderer.PrintProducts(products);
     }
 
     private void AddProductToCart(Customer customer)
@@ -219,6 +239,7 @@ public sealed class CustomerMenu
 
         var order = _orderService.PlaceOrder(customer);
         Console.WriteLine($"Order {order.Id} placed successfully. Total: {order.Total:C}");
+        ConsoleRenderer.PrintReceipt(customer, order, _orderService.GetPaymentForOrder(order.Id));
     }
 
     private static void ViewWalletBalance(Customer customer)
@@ -248,6 +269,12 @@ public sealed class CustomerMenu
     {
         var orders = _orderService.GetOrdersForCustomer(customer.Id);
         ConsoleRenderer.PrintOrders(orders);
+    }
+
+    private void ViewPaymentHistory(Customer customer)
+    {
+        ConsoleRenderer.PrintHeader("Payment History");
+        ConsoleRenderer.PrintPayments(_orderService.GetPaymentsForCustomer(customer.Id));
     }
 
     private void ReviewProduct(Customer customer)
@@ -293,5 +320,55 @@ public sealed class CustomerMenu
 
         Console.WriteLine(cancellationMessage);
         return false;
+    }
+
+    private IReadOnlyCollection<Product> SearchByKeyword()
+    {
+        if (!ConsoleInput.TryReadRequiredText("Search:", out var searchTerm))
+        {
+            Console.WriteLine("Search cancelled.");
+            return [];
+        }
+
+        return _productService.SearchProducts(searchTerm);
+    }
+
+    private IReadOnlyCollection<Product> FilterByCategory()
+    {
+        if (!ConsoleInput.TryReadRequiredText("Category:", out var category))
+        {
+            Console.WriteLine("Search cancelled.");
+            return [];
+        }
+
+        return _productService.GetProductsByCategory(category);
+    }
+
+    private IReadOnlyCollection<Product> FilterByPriceRange()
+    {
+        if (!ConsoleInput.TryReadMoney("Minimum price:", out var minimumPrice))
+        {
+            Console.WriteLine("Search cancelled.");
+            return [];
+        }
+
+        if (!ConsoleInput.TryReadMoney("Maximum price:", out var maximumPrice))
+        {
+            Console.WriteLine("Search cancelled.");
+            return [];
+        }
+
+        return _productService.GetProductsByPriceRange(minimumPrice, maximumPrice);
+    }
+
+    private IReadOnlyCollection<Product> FilterByMinimumRating()
+    {
+        if (!ConsoleInput.TryReadDecimal("Minimum rating (0-5):", 0, 5, out var minimumRating))
+        {
+            Console.WriteLine("Search cancelled.");
+            return [];
+        }
+
+        return _productService.GetProductsByMinimumRating(minimumRating);
     }
 }

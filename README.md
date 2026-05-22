@@ -23,6 +23,10 @@ The project demonstrates object-oriented programming, LINQ-based querying, excep
 - Product reviews and ratings
 - Administrative order viewing and status updates
 - Sales reports using LINQ aggregation
+- Advanced product search and filtering
+- Customer payment history
+- Checkout receipt output
+- Administrator low-stock login alerts
 - Input validation and exception handling
 
 ## Submission Coverage
@@ -37,6 +41,13 @@ The application separates domain models, service interfaces, service implementat
 
 Data is stored in memory because the specification asks for a console-based backend simulation using collections such as `List<T>`.
 
+Design pattern summary:
+
+- Factory Pattern: `IUserFactory` and `UserFactory` create role-specific users.
+- Strategy Pattern: `IPaymentProcessor` allows payment behavior to be replaced.
+- Repository Pattern: persistence interfaces separate storage contracts from JSON implementations.
+- DTO/Mapper Pattern: `Stored*` classes convert domain objects to JSON-friendly records.
+
 ## Project Structure
 
 - `Console/` contains menu flow, console input validation, and rendering helpers.
@@ -45,6 +56,7 @@ Data is stored in memory because the specification asks for a console-based back
 - `Infrastructure/Persistence/` contains repository interfaces and JSON persistence implementations.
 - `Services/Contracts/` contains service interfaces.
 - `Services/Implementations/` contains business service implementations.
+- `Tests/` contains a lightweight automated test runner for domain and service behavior.
 
 ## Data Persistence
 
@@ -59,4 +71,18 @@ Application data is saved in local JSON files so the system can resume state aft
 
 ```powershell
 dotnet run
+```
+
+## Verify
+
+```powershell
+dotnet build
+dotnet run --project Tests\OnlineShoppingSystem.Tests.csproj
+```
+
+Expected result:
+
+```text
+Build succeeded.
+All automated tests passed.
 ```

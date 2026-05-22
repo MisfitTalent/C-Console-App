@@ -25,6 +25,7 @@ public sealed class AdministratorMenu
     public void Show(Administrator administrator)
     {
         Console.WriteLine($"Administrator session started for {administrator.Name}.");
+        PrintLowStockAlert();
 
         while (true)
         {
@@ -218,6 +219,17 @@ public sealed class AdministratorMenu
     {
         ConsoleRenderer.PrintHeader("Sales Report");
         ConsoleRenderer.PrintSalesReport(_reportService.GenerateSalesReport());
+    }
+
+    private void PrintLowStockAlert()
+    {
+        var lowStockProducts = _productService.GetLowStockProducts();
+        if (lowStockProducts.Count == 0)
+        {
+            return;
+        }
+
+        Console.WriteLine($"Alert: {lowStockProducts.Count} product(s) are low on stock.");
     }
 
     private static void PrintProducts(IReadOnlyCollection<Product> products)

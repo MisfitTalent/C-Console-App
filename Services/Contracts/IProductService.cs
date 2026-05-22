@@ -41,6 +41,26 @@ public interface IProductService
     IReadOnlyCollection<Product> SearchProducts(string searchTerm);
 
     /// <summary>
+    /// Returns products that belong to a category.
+    /// </summary>
+    IReadOnlyCollection<Product> GetProductsByCategory(string category);
+
+    /// <summary>
+    /// Returns products within the supplied price range.
+    /// </summary>
+    IReadOnlyCollection<Product> GetProductsByPriceRange(decimal minimumPrice, decimal maximumPrice);
+
+    /// <summary>
+    /// Returns products with at least the supplied average rating.
+    /// </summary>
+    IReadOnlyCollection<Product> GetProductsByMinimumRating(decimal minimumRating);
+
+    /// <summary>
+    /// Returns products that currently have stock available.
+    /// </summary>
+    IReadOnlyCollection<Product> GetInStockProducts();
+
+    /// <summary>
     /// Returns products at or below their reorder level.
     /// </summary>
     IReadOnlyCollection<Product> GetLowStockProducts();

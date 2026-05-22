@@ -67,6 +67,21 @@ public sealed class OrderService : IOrderService
     }
 
     /// <inheritdoc />
+    public IReadOnlyCollection<Payment> GetPaymentsForCustomer(int customerId)
+    {
+        return _store.Payments
+            .Where(payment => payment.CustomerId == customerId)
+            .OrderByDescending(payment => payment.PaidAt)
+            .ToList();
+    }
+
+    /// <inheritdoc />
+    public Payment? GetPaymentForOrder(int orderId)
+    {
+        return _store.Payments.FirstOrDefault(payment => payment.OrderId == orderId);
+    }
+
+    /// <inheritdoc />
     public bool UpdateOrderStatus(int orderId, OrderStatus status)
     {
         var order = _store.Orders.FirstOrDefault(order => order.Id == orderId);

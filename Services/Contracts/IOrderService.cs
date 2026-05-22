@@ -21,6 +21,16 @@ public interface IOrderService
     IReadOnlyCollection<Order> GetAllOrders();
 
     /// <summary>
+    /// Returns all payments made by a customer.
+    /// </summary>
+    IReadOnlyCollection<Payment> GetPaymentsForCustomer(int customerId);
+
+    /// <summary>
+    /// Returns the payment linked to an order when one exists.
+    /// </summary>
+    Payment? GetPaymentForOrder(int orderId);
+
+    /// <summary>
     /// Updates the status of an existing order.
     /// </summary>
     bool UpdateOrderStatus(int orderId, OrderStatus status);
