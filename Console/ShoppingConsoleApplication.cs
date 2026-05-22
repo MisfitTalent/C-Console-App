@@ -17,8 +17,8 @@ public sealed class ShoppingConsoleApplication
         var orderService = new OrderService(store, paymentProcessor);
         var reportService = new ReportService(store);
 
-        _userService = new UserService(store);
-        _customerMenu = new CustomerMenu(productService, orderService);
+        _userService = new UserService(store, store.UserFactory);
+        _customerMenu = new CustomerMenu(productService, orderService, _userService);
         _administratorMenu = new AdministratorMenu(productService, orderService, reportService);
     }
 
@@ -57,10 +57,11 @@ public sealed class ShoppingConsoleApplication
         try
         {
             ConsoleRenderer.PrintHeader("Register");
-            var name = ConsoleInput.ReadRequiredText("Name: ");
-            var username = ConsoleInput.ReadRequiredText("Username: ");
-            var password = ConsoleInput.ReadRequiredText("Password: ");
-            var role = ReadRole();
+            if (!TryReadRegistrationDetails(out var name, out var username, out var password, out var role))
+            {
+                Console.WriteLine("Registration cancelled.");
+                return;
+            }
 
             var user = _userService.Register(name, username, password, role);
             Console.WriteLine($"Registered {user.Name} as {user.Role}.");
@@ -74,8 +75,12 @@ public sealed class ShoppingConsoleApplication
     private void Login()
     {
         ConsoleRenderer.PrintHeader("Login");
-        var username = ConsoleInput.ReadRequiredText("Username: ");
-        var password = ConsoleInput.ReadRequiredText("Password: ");
+        if (!TryReadLoginDetails(out var username, out var password))
+        {
+            Console.WriteLine("Login cancelled.");
+            return;
+        }
+
         var user = _userService.Login(username, password);
 
         if (user is null)
@@ -88,12 +93,110 @@ public sealed class ShoppingConsoleApplication
         RouteUser(user);
     }
 
-    private static UserRole ReadRole()
+    private static bool TryReadLoginDetails(out string username, out string password)
+    {
+        username = string.Empty;
+        password = string.Empty;
+        var step = 1;
+
+        while (step is >= 1 and <= 2)
+        {
+            if (step == 1)
+            {
+                if (!ConsoleInput.TryReadRequiredText("Username:", out username))
+                {
+                    return false;
+                }
+
+                step++;
+                continue;
+            }
+
+            if (ConsoleInput.TryReadRequiredText("Password:", out password))
+            {
+                step++;
+                continue;
+            }
+
+            step--;
+        }
+
+        return true;
+    }
+
+    private static bool TryReadRegistrationDetails(
+        out string name,
+        out string username,
+        out string password,
+        out UserRole role)
+    {
+        name = string.Empty;
+        username = string.Empty;
+        password = string.Empty;
+        role = UserRole.Customer;
+        var step = 1;
+
+        while (step is >= 1 and <= 4)
+        {
+            if (step == 1)
+            {
+                if (!ConsoleInput.TryReadRequiredText("Name:", out name))
+                {
+                    return false;
+                }
+
+                step++;
+                continue;
+            }
+
+            if (step == 2)
+            {
+                if (ConsoleInput.TryReadRequiredText("Username:", out username))
+                {
+                    step++;
+                    continue;
+                }
+
+                step--;
+                continue;
+            }
+
+            if (step == 3)
+            {
+                if (ConsoleInput.TryReadRequiredText("Password:", out password))
+                {
+                    step++;
+                    continue;
+                }
+
+                step--;
+                continue;
+            }
+
+            if (TryReadRole(out role))
+            {
+                step++;
+                continue;
+            }
+
+            step--;
+        }
+
+        return true;
+    }
+
+    private static bool TryReadRole(out UserRole role)
     {
         Console.WriteLine("1. Customer");
         Console.WriteLine("2. Administrator");
-        var roleChoice = ConsoleInput.ReadInt("Select role: ", 1, 2);
-        return roleChoice == 2 ? UserRole.Administrator : UserRole.Customer;
+        if (!ConsoleInput.TryReadInt("Select role:", 1, 2, out var roleChoice))
+        {
+            role = UserRole.Customer;
+            return false;
+        }
+
+        role = roleChoice == 2 ? UserRole.Administrator : UserRole.Customer;
+        return true;
     }
 
     private void RouteUser(User user)

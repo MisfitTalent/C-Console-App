@@ -23,30 +23,66 @@ The project demonstrates object-oriented programming, LINQ-based querying, excep
 - Product reviews and ratings
 - Administrative order viewing and status updates
 - Sales reports using LINQ aggregation
+- Advanced product search and filtering
+- Customer payment history
+- Checkout receipt output
+- Administrator low-stock login alerts
 - Input validation and exception handling
 
 ## Submission Coverage
 
 Submission 1 is covered by the core backend functionality: authentication, role separation, product management, cart management, checkout, wallet payment, order tracking, inventory management, reporting, LINQ queries, validation, and a menu-driven console interface.
 
-Submission 2 is supported through architecture and design improvements: domain models are separated from services and console menus, behavior is expressed through interfaces, and payment processing uses a replaceable strategy-style abstraction through `IPaymentProcessor`.
+Submission 2 is supported through architecture and design improvements: domain models are separated from services and console menus, behavior is expressed through interfaces, user creation is centralized through a Factory pattern, persistence uses repository-style abstractions, and payment processing uses a replaceable Strategy pattern through `IPaymentProcessor`.
 
 ## Design Notes
 
-The application separates domain models, service interfaces, service implementations, and console menus. Payment processing is abstracted behind `IPaymentProcessor`, allowing other payment approaches to be added without changing order placement logic.
+The application separates domain models, service interfaces, service implementations, persistence repositories, and console menus. Payment processing is abstracted behind `IPaymentProcessor`, allowing other payment approaches to be added without changing order placement logic.
 
 Data is stored in memory because the specification asks for a console-based backend simulation using collections such as `List<T>`.
+
+Design pattern summary:
+
+- Factory Pattern: `IUserFactory` and `UserFactory` create role-specific users.
+- Strategy Pattern: `IPaymentProcessor` allows payment behavior to be replaced.
+- Repository Pattern: persistence interfaces separate storage contracts from JSON implementations.
+- DTO/Mapper Pattern: `Stored*` classes convert domain objects to JSON-friendly records.
 
 ## Project Structure
 
 - `Console/` contains menu flow, console input validation, and rendering helpers.
 - `Domain/` contains business objects such as users, products, carts, orders, payments, reviews, and reports.
 - `Infrastructure/` contains the in-memory data store and seed data.
+- `Infrastructure/Persistence/` contains repository interfaces and JSON persistence implementations.
 - `Services/Contracts/` contains service interfaces.
 - `Services/Implementations/` contains business service implementations.
+- `Tests/` contains a lightweight automated test runner for domain and service behavior.
+
+## Data Persistence
+
+Application data is saved in local JSON files so the system can resume state after the console application is closed and restarted.
+
+- `Data/Users.json` stores users and wallet balances.
+- `Data/Products.json` stores product catalog data, inventory, and reviews.
+- `Data/Orders.json` stores customer orders linked by `CustomerId`.
+- `Data/Payments.json` stores wallet payments linked by `OrderId` and `CustomerId`.
 
 ## Run
 
 ```powershell
 dotnet run
+```
+
+## Verify
+
+```powershell
+dotnet build
+dotnet run --project Tests\OnlineShoppingSystem.Tests.csproj
+```
+
+Expected result:
+
+```text
+Build succeeded.
+All automated tests passed.
 ```

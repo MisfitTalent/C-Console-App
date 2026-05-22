@@ -1,0 +1,34 @@
+[
+  {
+    "Id": 1,
+    "Name": "System Admin",
+    "Username": "admin",
+    "Password": "admin123",
+    "Role": "Administrator",
+    "WalletBalance": 0
+  },
+  {
+    "Id": 2,
+    "Name": "Demo Customer",
+    "Username": "customer",
+    "Password": "customer123",
+    "Role": "Customer",
+    "WalletBalance": 600.01
+  },
+  {
+    "Id": 3,
+    "Name": "Kagiso",
+    "Username": "Kagiso",
+    "Password": "1234",
+    "Role": "Customer",
+    "WalletBalance": 106.65
+  },
+  {
+    "Id": 4,
+    "Name": "Kagiso",
+    "Username": "Kaygasaur",
+    "Password": "247",
+    "Role": "Administrator",
+    "WalletBalance": 0
+  }
+]

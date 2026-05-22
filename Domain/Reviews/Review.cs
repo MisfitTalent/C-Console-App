@@ -6,6 +6,11 @@ namespace OnlineShoppingSystem;
 public sealed class Review
 {
     public Review(int id, int customerId, int productId, int rating, string comment)
+        : this(id, customerId, productId, rating, comment, DateTime.Now)
+    {
+    }
+
+    public Review(int id, int customerId, int productId, int rating, string comment, DateTime createdAt)
     {
         if (rating is < 1 or > 5)
         {
@@ -17,7 +22,7 @@ public sealed class Review
         ProductId = productId;
         Rating = rating;
         Comment = comment.Trim();
-        CreatedAt = DateTime.Now;
+        CreatedAt = createdAt;
     }
 
     public int Id { get; }

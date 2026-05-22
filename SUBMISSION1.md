@@ -10,7 +10,8 @@ Submission 1 focuses on the core backend functionality of the Online Shopping Sy
 
 - `Console/`: numbered menus, input handling, and display rendering.
 - `Domain/`: core entities and enums used by the shopping system.
-- `Infrastructure/`: in-memory data storage and startup seed data.
+- `Infrastructure/`: in-memory data storage, startup seed data, and JSON persistence.
+- `Data/`: persisted users, products, orders, payments, and reviews.
 - `Services/Contracts/`: interfaces that describe application operations.
 - `Services/Implementations/`: service classes that implement business logic.
 
@@ -33,6 +34,7 @@ Submission 1 focuses on the core backend functionality of the Online Shopping Sy
 - Shopping cart functionality
 - Order placement and tracking
 - Payment simulation through wallet balance
+- JSON persistence for users, products, orders, payments, and reviews
 - Inventory management and stock tracking
 - Administrative reporting and analytics
 - Product review and rating system

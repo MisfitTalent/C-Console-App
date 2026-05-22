@@ -6,10 +6,12 @@ namespace OnlineShoppingSystem;
 public sealed class UserService : IUserService
 {
     private readonly AppDataStore _store;
+    private readonly IUserFactory _userFactory;
 
-    public UserService(AppDataStore store)
+    public UserService(AppDataStore store, IUserFactory userFactory)
     {
         _store = store;
+        _userFactory = userFactory;
     }
 
     /// <inheritdoc />
@@ -39,11 +41,10 @@ public sealed class UserService : IUserService
             throw new InvalidOperationException("Username already exists.");
         }
 
-        User user = role == UserRole.Administrator
-            ? new Administrator(_store.GetNextUserId(), name.Trim(), normalizedUsername, password)
-            : new Customer(_store.GetNextUserId(), name.Trim(), normalizedUsername, password);
+        var user = _userFactory.Create(_store.GetNextUserId(), name, normalizedUsername, password, role);
 
         _store.Users.Add(user);
+        _store.SaveUsers();
         return user;
     }
 
@@ -53,5 +54,11 @@ public sealed class UserService : IUserService
         return _store.Users.FirstOrDefault(user =>
             user.Username.Equals(username.Trim(), StringComparison.OrdinalIgnoreCase)
             && user.Password == password);
+    }
+
+    /// <inheritdoc />
+    public void SaveUsers()
+    {
+        _store.SaveUsers();
     }
 }

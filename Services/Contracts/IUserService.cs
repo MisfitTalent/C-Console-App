@@ -14,4 +14,9 @@ public interface IUserService
     /// Authenticates a user by username and password.
     /// </summary>
     User? Login(string username, string password);
+
+    /// <summary>
+    /// Persists the current user list to storage.
+    /// </summary>
+    void SaveUsers();
 }

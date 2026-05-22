@@ -25,6 +25,7 @@ public sealed class AdministratorMenu
     public void Show(Administrator administrator)
     {
         Console.WriteLine($"Administrator session started for {administrator.Name}.");
+        PrintLowStockAlert();
 
         while (true)
         {
@@ -98,6 +99,12 @@ public sealed class AdministratorMenu
     private void AddProduct()
     {
         var product = ReadProductDetails();
+        if (product is null)
+        {
+            Console.WriteLine("Add product cancelled.");
+            return;
+        }
+
         var createdProduct = _productService.AddProduct(
             product.Name,
             product.Description,
@@ -111,12 +118,22 @@ public sealed class AdministratorMenu
 
     private void UpdateProduct()
     {
-        ViewProducts();
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product update cancelled.", out var selectedProduct) || selectedProduct is null)
+        {
+            return;
+        }
+
         var product = ReadProductDetails();
+        if (product is null)
+        {
+            Console.WriteLine("Product update cancelled.");
+            return;
+        }
 
         var updated = _productService.UpdateProduct(
-            productId,
+            selectedProduct.Id,
             product.Name,
             product.Description,
             product.Category,
@@ -129,37 +146,67 @@ public sealed class AdministratorMenu
 
     private void DeleteProduct()
     {
-        ViewProducts();
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
-        Console.WriteLine(_productService.DeleteProduct(productId) ? "Product deleted." : "Product not found.");
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product deletion cancelled.", out var product) || product is null)
+        {
+            return;
+        }
+
+        Console.WriteLine(_productService.DeleteProduct(product.Id) ? "Product deleted." : "Product not found.");
     }
 
     private void RestockProduct()
     {
-        ViewProducts();
-        var productId = ConsoleInput.ReadInt("Product ID: ", 1, int.MaxValue);
-        var quantity = ConsoleInput.ReadInt("Quantity to add: ", 1, int.MaxValue);
-        Console.WriteLine(_productService.RestockProduct(productId, quantity) ? "Product restocked." : "Product not found.");
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product restock cancelled.", out var product) || product is null)
+        {
+            return;
+        }
+
+        if (!ConsoleInput.TryReadInt("Quantity to add:", 1, int.MaxValue, out var quantity))
+        {
+            Console.WriteLine("Product restock cancelled.");
+            return;
+        }
+
+        Console.WriteLine(_productService.RestockProduct(product.Id, quantity) ? "Product restocked." : "Product not found.");
     }
 
     private void ViewProducts()
     {
-        ConsoleRenderer.PrintHeader("Products");
-        ConsoleRenderer.PrintProducts(_productService.GetProducts());
+        PrintProducts(_productService.GetProducts());
     }
 
     private void ViewOrders()
     {
-        ConsoleRenderer.PrintHeader("Orders");
-        ConsoleRenderer.PrintOrders(_orderService.GetAllOrders());
+        PrintOrders(_orderService.GetAllOrders());
     }
 
     private void UpdateOrderStatus()
     {
-        ViewOrders();
-        var orderId = ConsoleInput.ReadInt("Order ID: ", 1, int.MaxValue);
-        var status = ReadOrderStatus();
-        Console.WriteLine(_orderService.UpdateOrderStatus(orderId, status) ? "Order status updated." : "Order not found.");
+        var orders = _orderService.GetAllOrders();
+        PrintOrders(orders);
+        if (!ConsoleInput.TryReadItemById(
+            "Order ID:",
+            orders,
+            order => order.Id,
+            "order",
+            out var order)
+            || order is null)
+        {
+            Console.WriteLine("Order status update cancelled.");
+            return;
+        }
+
+        if (!TryReadOrderStatus(out var status))
+        {
+            Console.WriteLine("Order status update cancelled.");
+            return;
+        }
+
+        Console.WriteLine(_orderService.UpdateOrderStatus(order.Id, status) ? "Order status updated." : "Order not found.");
     }
 
     private void ViewLowStockProducts()
@@ -174,27 +221,99 @@ public sealed class AdministratorMenu
         ConsoleRenderer.PrintSalesReport(_reportService.GenerateSalesReport());
     }
 
-    private static ProductDetails ReadProductDetails()
+    private void PrintLowStockAlert()
     {
-        var name = ConsoleInput.ReadRequiredText("Name: ");
-        var description = ConsoleInput.ReadRequiredText("Description: ");
-        var category = ConsoleInput.ReadRequiredText("Category: ");
-        var price = ConsoleInput.ReadMoney("Price: ");
-        var stockQuantity = ConsoleInput.ReadInt("Stock quantity: ", 0, int.MaxValue);
-        var reorderLevel = ConsoleInput.ReadInt("Reorder level: ", 0, int.MaxValue);
+        var lowStockProducts = _productService.GetLowStockProducts();
+        if (lowStockProducts.Count == 0)
+        {
+            return;
+        }
+
+        Console.WriteLine($"Alert: {lowStockProducts.Count} product(s) are low on stock.");
+    }
+
+    private static void PrintProducts(IReadOnlyCollection<Product> products)
+    {
+        ConsoleRenderer.PrintHeader("Products");
+        ConsoleRenderer.PrintProducts(products);
+    }
+
+    private static void PrintOrders(IReadOnlyCollection<Order> orders)
+    {
+        ConsoleRenderer.PrintHeader("Orders");
+        ConsoleRenderer.PrintOrders(orders);
+    }
+
+    private static bool TryReadProduct(
+        IReadOnlyCollection<Product> products,
+        string cancellationMessage,
+        out Product? product)
+    {
+        if (ConsoleInput.TryReadItemByIdOrName(
+            "Product ID or name:",
+            products,
+            selectedProduct => selectedProduct.Id,
+            selectedProduct => selectedProduct.Name,
+            "product",
+            out product))
+        {
+            return true;
+        }
+
+        Console.WriteLine(cancellationMessage);
+        return false;
+    }
+
+    private static ProductDetails? ReadProductDetails()
+    {
+        if (!ConsoleInput.TryReadRequiredText("Name:", out var name))
+        {
+            return null;
+        }
+
+        if (!ConsoleInput.TryReadRequiredText("Description:", out var description))
+        {
+            return null;
+        }
+
+        if (!ConsoleInput.TryReadRequiredText("Category:", out var category))
+        {
+            return null;
+        }
+
+        if (!ConsoleInput.TryReadMoney("Price:", out var price))
+        {
+            return null;
+        }
+
+        if (!ConsoleInput.TryReadInt("Stock quantity:", 0, int.MaxValue, out var stockQuantity))
+        {
+            return null;
+        }
+
+        if (!ConsoleInput.TryReadInt("Reorder level:", 0, int.MaxValue, out var reorderLevel))
+        {
+            return null;
+        }
 
         return new ProductDetails(name, description, category, price, stockQuantity, reorderLevel);
     }
 
-    private static OrderStatus ReadOrderStatus()
+    private static bool TryReadOrderStatus(out OrderStatus status)
     {
         Console.WriteLine("1. Pending");
         Console.WriteLine("2. Processing");
         Console.WriteLine("3. Shipped");
         Console.WriteLine("4. Delivered");
         Console.WriteLine("5. Cancelled");
-        var choice = ConsoleInput.ReadInt("Select status: ", 1, 5);
-        return (OrderStatus)choice;
+        if (!ConsoleInput.TryReadInt("Select status:", 1, 5, out var choice))
+        {
+            status = OrderStatus.Pending;
+            return false;
+        }
+
+        status = (OrderStatus)choice;
+        return true;
     }
 
     private sealed record ProductDetails(

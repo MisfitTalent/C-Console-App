@@ -11,7 +11,7 @@ public static class ConsoleRenderer
     public static void PrintHeader(string title)
     {
         Console.WriteLine();
-        Console.WriteLine($"=== {title} ===");
+        Console.WriteLine($"======== {title} ========");
     }
 
     /// <summary>
@@ -73,6 +73,49 @@ public static class ConsoleRenderer
                 Console.WriteLine($"   {item.ProductName} x {item.Quantity} = {item.LineTotal:C}");
             }
         }
+    }
+
+    /// <summary>
+    /// Prints customer payment history.
+    /// </summary>
+    public static void PrintPayments(IEnumerable<Payment> payments)
+    {
+        var paymentList = payments.ToList();
+        if (paymentList.Count == 0)
+        {
+            Console.WriteLine("No payments found.");
+            return;
+        }
+
+        foreach (var payment in paymentList)
+        {
+            Console.WriteLine(
+                $"Payment {payment.Id} | Order {payment.OrderId} | {payment.Amount:C} | {payment.Status} | {payment.PaidAt:g}");
+            Console.WriteLine($"   {payment.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Prints a receipt after a successful checkout.
+    /// </summary>
+    public static void PrintReceipt(Customer customer, Order order, Payment? payment)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+        ArgumentNullException.ThrowIfNull(order);
+
+        PrintHeader("Receipt");
+        Console.WriteLine($"Order ID: {order.Id}");
+        Console.WriteLine($"Customer: {customer.Name}");
+        Console.WriteLine($"Date: {order.CreatedAt:g}");
+
+        foreach (var item in order.Items)
+        {
+            Console.WriteLine($"{item.ProductName} x {item.Quantity} = {item.LineTotal:C}");
+        }
+
+        Console.WriteLine($"Total: {order.Total:C}");
+        Console.WriteLine($"Payment: {payment?.Status.ToString() ?? "Unknown"}");
+        Console.WriteLine($"Remaining wallet balance: {customer.WalletBalance:C}");
     }
 
     /// <summary>
