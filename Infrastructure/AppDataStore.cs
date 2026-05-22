@@ -6,6 +6,9 @@ namespace OnlineShoppingSystem;
 public sealed class AppDataStore
 {
     private readonly UserJsonStore _userJsonStore;
+    private readonly ProductJsonStore _productJsonStore;
+    private readonly OrderJsonStore _orderJsonStore;
+    private readonly PaymentJsonStore _paymentJsonStore;
     private int _nextUserId = 1;
     private int _nextProductId = 1;
     private int _nextOrderId = 1;
@@ -14,9 +17,16 @@ public sealed class AppDataStore
 
     public AppDataStore()
     {
-        _userJsonStore = new UserJsonStore(Path.Combine(Directory.GetCurrentDirectory(), "Data", "Users.json"));
+        var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+        _userJsonStore = new UserJsonStore(Path.Combine(dataDirectory, "Users.json"));
+        _productJsonStore = new ProductJsonStore(Path.Combine(dataDirectory, "Products.json"));
+        _orderJsonStore = new OrderJsonStore(Path.Combine(dataDirectory, "Orders.json"));
+        _paymentJsonStore = new PaymentJsonStore(Path.Combine(dataDirectory, "Payments.json"));
+
+        LoadProducts();
         LoadUsers();
-        SeedProducts();
+        LoadOrders();
+        LoadPayments();
     }
 
     public List<User> Users { get; } = [];
@@ -41,6 +51,14 @@ public sealed class AppDataStore
     }
 
     /// <summary>
+    /// Saves all current products to persistent storage.
+    /// </summary>
+    public void SaveProducts()
+    {
+        _productJsonStore.SaveProducts(Products);
+    }
+
+    /// <summary>
     /// Returns the next unique product identifier.
     /// </summary>
     public int GetNextProductId() => _nextProductId++;
@@ -51,14 +69,51 @@ public sealed class AppDataStore
     public int GetNextOrderId() => _nextOrderId++;
 
     /// <summary>
+    /// Saves all current orders to persistent storage.
+    /// </summary>
+    public void SaveOrders()
+    {
+        _orderJsonStore.SaveOrders(Orders);
+    }
+
+    /// <summary>
     /// Returns the next unique payment identifier.
     /// </summary>
     public int GetNextPaymentId() => _nextPaymentId++;
 
     /// <summary>
+    /// Saves all current payments to persistent storage.
+    /// </summary>
+    public void SavePayments()
+    {
+        _paymentJsonStore.SavePayments(Payments);
+    }
+
+    /// <summary>
     /// Returns the next unique review identifier.
     /// </summary>
     public int GetNextReviewId() => _nextReviewId++;
+
+    private void LoadProducts()
+    {
+        var products = _productJsonStore.LoadProducts();
+        if (products.Count == 0)
+        {
+            SeedProducts();
+            SaveProducts();
+        }
+        else
+        {
+            Products.AddRange(products);
+        }
+
+        _nextProductId = Products.Count == 0 ? 1 : Products.Max(product => product.Id) + 1;
+        _nextReviewId = Products
+            .SelectMany(product => product.Reviews)
+            .Select(review => review.Id)
+            .DefaultIfEmpty(0)
+            .Max() + 1;
+    }
 
     private void LoadUsers()
     {
@@ -74,6 +129,20 @@ public sealed class AppDataStore
         }
 
         _nextUserId = Users.Count == 0 ? 1 : Users.Max(user => user.Id) + 1;
+    }
+
+    private void LoadOrders()
+    {
+        var orders = _orderJsonStore.LoadOrders();
+        Orders.AddRange(orders);
+        _nextOrderId = Orders.Count == 0 ? 1 : Orders.Max(order => order.Id) + 1;
+    }
+
+    private void LoadPayments()
+    {
+        var payments = _paymentJsonStore.LoadPayments();
+        Payments.AddRange(payments);
+        _nextPaymentId = Payments.Count == 0 ? 1 : Payments.Max(payment => payment.Id) + 1;
     }
 
     private void SeedUsers()

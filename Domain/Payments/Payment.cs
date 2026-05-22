@@ -6,6 +6,11 @@ namespace OnlineShoppingSystem;
 public sealed class Payment
 {
     public Payment(int id, int orderId, int customerId, decimal amount, PaymentStatus status, string message)
+        : this(id, orderId, customerId, amount, status, message, DateTime.Now)
+    {
+    }
+
+    public Payment(int id, int orderId, int customerId, decimal amount, PaymentStatus status, string message, DateTime paidAt)
     {
         Id = id;
         OrderId = orderId;
@@ -13,7 +18,7 @@ public sealed class Payment
         Amount = amount;
         Status = status;
         Message = message;
-        PaidAt = DateTime.Now;
+        PaidAt = paidAt;
     }
 
     public int Id { get; }

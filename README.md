@@ -48,9 +48,12 @@ Data is stored in memory because the specification asks for a console-based back
 
 ## Data Persistence
 
-Registered users are saved to `Data/Users.json` so they can log in again after the console application is closed and restarted.
+Application data is saved in local JSON files so the system can resume state after the console application is closed and restarted.
 
-Products, orders, and payments are still stored in memory for the current application session.
+- `Data/Users.json` stores users and wallet balances.
+- `Data/Products.json` stores product catalog data, inventory, and reviews.
+- `Data/Orders.json` stores customer orders linked by `CustomerId`.
+- `Data/Payments.json` stores wallet payments linked by `OrderId` and `CustomerId`.
 
 ## Run
 

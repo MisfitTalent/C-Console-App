@@ -13,7 +13,7 @@
     "Username": "customer",
     "Password": "customer123",
     "Role": "Customer",
-    "WalletBalance": 1500
+    "WalletBalance": 600.01
   },
   {
     "Id": 3,
@@ -21,6 +21,6 @@
     "Username": "Kagiso",
     "Password": "1234",
     "Role": "Customer",
-    "WalletBalance": 200000
+    "WalletBalance": 199896.52
   }
 ]
