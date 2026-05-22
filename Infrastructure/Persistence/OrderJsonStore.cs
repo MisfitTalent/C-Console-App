@@ -6,7 +6,7 @@ namespace OnlineShoppingSystem;
 /// <summary>
 /// Persists orders to a local JSON file.
 /// </summary>
-public sealed class OrderJsonStore
+public sealed class OrderJsonStore : IOrderRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

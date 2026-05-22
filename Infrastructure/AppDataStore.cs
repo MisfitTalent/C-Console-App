@@ -5,10 +5,11 @@ namespace OnlineShoppingSystem;
 /// </summary>
 public sealed class AppDataStore
 {
-    private readonly UserJsonStore _userJsonStore;
-    private readonly ProductJsonStore _productJsonStore;
-    private readonly OrderJsonStore _orderJsonStore;
-    private readonly PaymentJsonStore _paymentJsonStore;
+    private readonly IUserFactory _userFactory;
+    private readonly IUserRepository _userRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IPaymentRepository _paymentRepository;
     private int _nextUserId = 1;
     private int _nextProductId = 1;
     private int _nextOrderId = 1;
@@ -17,11 +18,12 @@ public sealed class AppDataStore
 
     public AppDataStore()
     {
+        _userFactory = new UserFactory();
         var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
-        _userJsonStore = new UserJsonStore(Path.Combine(dataDirectory, "Users.json"));
-        _productJsonStore = new ProductJsonStore(Path.Combine(dataDirectory, "Products.json"));
-        _orderJsonStore = new OrderJsonStore(Path.Combine(dataDirectory, "Orders.json"));
-        _paymentJsonStore = new PaymentJsonStore(Path.Combine(dataDirectory, "Payments.json"));
+        _userRepository = new UserJsonStore(Path.Combine(dataDirectory, "Users.json"), _userFactory);
+        _productRepository = new ProductJsonStore(Path.Combine(dataDirectory, "Products.json"));
+        _orderRepository = new OrderJsonStore(Path.Combine(dataDirectory, "Orders.json"));
+        _paymentRepository = new PaymentJsonStore(Path.Combine(dataDirectory, "Payments.json"));
 
         LoadProducts();
         LoadUsers();
@@ -38,6 +40,11 @@ public sealed class AppDataStore
     public List<Payment> Payments { get; } = [];
 
     /// <summary>
+    /// Creates role-specific users for services and seed data.
+    /// </summary>
+    public IUserFactory UserFactory => _userFactory;
+
+    /// <summary>
     /// Returns the next unique user identifier.
     /// </summary>
     public int GetNextUserId() => _nextUserId++;
@@ -47,7 +54,7 @@ public sealed class AppDataStore
     /// </summary>
     public void SaveUsers()
     {
-        _userJsonStore.SaveUsers(Users);
+        _userRepository.SaveUsers(Users);
     }
 
     /// <summary>
@@ -55,7 +62,7 @@ public sealed class AppDataStore
     /// </summary>
     public void SaveProducts()
     {
-        _productJsonStore.SaveProducts(Products);
+        _productRepository.SaveProducts(Products);
     }
 
     /// <summary>
@@ -73,7 +80,7 @@ public sealed class AppDataStore
     /// </summary>
     public void SaveOrders()
     {
-        _orderJsonStore.SaveOrders(Orders);
+        _orderRepository.SaveOrders(Orders);
     }
 
     /// <summary>
@@ -86,7 +93,7 @@ public sealed class AppDataStore
     /// </summary>
     public void SavePayments()
     {
-        _paymentJsonStore.SavePayments(Payments);
+        _paymentRepository.SavePayments(Payments);
     }
 
     /// <summary>
@@ -96,7 +103,7 @@ public sealed class AppDataStore
 
     private void LoadProducts()
     {
-        var products = _productJsonStore.LoadProducts();
+        var products = _productRepository.LoadProducts();
         if (products.Count == 0)
         {
             SeedProducts();
@@ -117,7 +124,7 @@ public sealed class AppDataStore
 
     private void LoadUsers()
     {
-        var users = _userJsonStore.LoadUsers();
+        var users = _userRepository.LoadUsers();
         if (users.Count == 0)
         {
             SeedUsers();
@@ -133,23 +140,22 @@ public sealed class AppDataStore
 
     private void LoadOrders()
     {
-        var orders = _orderJsonStore.LoadOrders();
+        var orders = _orderRepository.LoadOrders();
         Orders.AddRange(orders);
         _nextOrderId = Orders.Count == 0 ? 1 : Orders.Max(order => order.Id) + 1;
     }
 
     private void LoadPayments()
     {
-        var payments = _paymentJsonStore.LoadPayments();
+        var payments = _paymentRepository.LoadPayments();
         Payments.AddRange(payments);
         _nextPaymentId = Payments.Count == 0 ? 1 : Payments.Max(payment => payment.Id) + 1;
     }
 
     private void SeedUsers()
     {
-        var admin = new Administrator(GetNextUserId(), "System Admin", "admin", "admin123");
-        var customer = new Customer(GetNextUserId(), "Demo Customer", "customer", "customer123");
-        customer.AddWalletFunds(1_500);
+        var admin = _userFactory.Create(GetNextUserId(), "System Admin", "admin", "admin123", UserRole.Administrator);
+        var customer = _userFactory.Create(GetNextUserId(), "Demo Customer", "customer", "customer123", UserRole.Customer, 1_500);
 
         Users.Add(admin);
         Users.Add(customer);

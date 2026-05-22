@@ -6,7 +6,7 @@ namespace OnlineShoppingSystem;
 /// <summary>
 /// Persists payments to a local JSON file.
 /// </summary>
-public sealed class PaymentJsonStore
+public sealed class PaymentJsonStore : IPaymentRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

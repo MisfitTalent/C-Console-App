@@ -6,7 +6,7 @@ namespace OnlineShoppingSystem;
 /// <summary>
 /// Persists application users to a local JSON file.
 /// </summary>
-public sealed class UserJsonStore
+public sealed class UserJsonStore : IUserRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -15,10 +15,12 @@ public sealed class UserJsonStore
     };
 
     private readonly string _filePath;
+    private readonly IUserFactory _userFactory;
 
-    public UserJsonStore(string filePath)
+    public UserJsonStore(string filePath, IUserFactory userFactory)
     {
         _filePath = filePath;
+        _userFactory = userFactory;
     }
 
     /// <summary>
@@ -38,7 +40,7 @@ public sealed class UserJsonStore
         }
 
         var storedUsers = JsonSerializer.Deserialize<List<StoredUser>>(json, JsonOptions) ?? [];
-        return storedUsers.Select(storedUser => storedUser.ToUser()).ToList();
+        return storedUsers.Select(storedUser => storedUser.ToUser(_userFactory)).ToList();
     }
 
     /// <summary>
