@@ -21,6 +21,14 @@
     "Username": "Kagiso",
     "Password": "1234",
     "Role": "Customer",
-    "WalletBalance": 199896.52
+    "WalletBalance": 106.65
+  },
+  {
+    "Id": 4,
+    "Name": "Kagiso",
+    "Username": "Kaygasaur",
+    "Password": "247",
+    "Role": "Administrator",
+    "WalletBalance": 0
   }
 ]
