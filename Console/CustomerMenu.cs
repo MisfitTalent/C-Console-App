@@ -117,30 +117,22 @@ public sealed class CustomerMenu
 
     private void AddProductToCart(Customer customer)
     {
-        ConsoleRenderer.PrintProducts(_productService.GetProducts());
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        var products = _productService.GetProducts();
+        ConsoleRenderer.PrintProducts(products);
+        if (!TryReadProduct(products, "Add to cart cancelled.", out var product) || product is null)
+        {
+            return;
+        }
+
+        if (product.StockQuantity == 0)
+        {
+            Console.WriteLine("Product is out of stock.");
+            return;
+        }
+
+        if (!ConsoleInput.TryReadInt("Quantity:", 1, product.StockQuantity, out var quantity))
         {
             Console.WriteLine("Add to cart cancelled.");
-            return;
-        }
-
-        if (!ConsoleInput.TryReadInt("Quantity:", 1, int.MaxValue, out var quantity))
-        {
-            Console.WriteLine("Add to cart cancelled.");
-            return;
-        }
-
-        var product = _productService.GetProductById(productId);
-
-        if (product is null)
-        {
-            Console.WriteLine("Product not found.");
-            return;
-        }
-
-        if (quantity > product.StockQuantity)
-        {
-            Console.WriteLine("Requested quantity exceeds available stock.");
             return;
         }
 
@@ -163,12 +155,21 @@ public sealed class CustomerMenu
             return;
         }
 
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        if (!ConsoleInput.TryReadItemByIdOrName(
+            "Product ID or name:",
+            customer.Cart.Items,
+            item => item.Product.Id,
+            item => item.Product.Name,
+            "cart product",
+            out var cartItem)
+            || cartItem is null)
         {
             Console.WriteLine("Cart update cancelled.");
             return;
         }
 
+        var productId = cartItem.Product.Id;
+        var maximumQuantity = Math.Max(cartItem.Product.StockQuantity, cartItem.Quantity);
         Console.WriteLine("1. Change quantity");
         Console.WriteLine("2. Remove product");
         if (!ConsoleInput.TryReadInt("Select option:", 1, 2, out var choice))
@@ -192,7 +193,7 @@ public sealed class CustomerMenu
             return;
         }
 
-        if (!ConsoleInput.TryReadInt("New quantity:", 1, int.MaxValue, out var quantity))
+        if (!ConsoleInput.TryReadInt("New quantity:", 1, maximumQuantity, out var quantity))
         {
             Console.WriteLine("Cart update cancelled.");
             return;
@@ -251,10 +252,10 @@ public sealed class CustomerMenu
 
     private void ReviewProduct(Customer customer)
     {
-        ConsoleRenderer.PrintProducts(_productService.GetProducts());
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        var products = _productService.GetProducts();
+        ConsoleRenderer.PrintProducts(products);
+        if (!TryReadProduct(products, "Review cancelled.", out var product) || product is null)
         {
-            Console.WriteLine("Review cancelled.");
             return;
         }
 
@@ -270,7 +271,27 @@ public sealed class CustomerMenu
             return;
         }
 
-        _productService.AddReview(customer, productId, rating, comment);
+        _productService.AddReview(customer, product.Id, rating, comment);
         Console.WriteLine("Review added.");
+    }
+
+    private static bool TryReadProduct(
+        IReadOnlyCollection<Product> products,
+        string cancellationMessage,
+        out Product? product)
+    {
+        if (ConsoleInput.TryReadItemByIdOrName(
+            "Product ID or name:",
+            products,
+            selectedProduct => selectedProduct.Id,
+            selectedProduct => selectedProduct.Name,
+            "product",
+            out product))
+        {
+            return true;
+        }
+
+        Console.WriteLine(cancellationMessage);
+        return false;
     }
 }

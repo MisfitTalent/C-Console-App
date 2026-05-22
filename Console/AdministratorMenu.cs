@@ -117,10 +117,10 @@ public sealed class AdministratorMenu
 
     private void UpdateProduct()
     {
-        ViewProducts();
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product update cancelled.", out var selectedProduct) || selectedProduct is null)
         {
-            Console.WriteLine("Product update cancelled.");
             return;
         }
 
@@ -132,7 +132,7 @@ public sealed class AdministratorMenu
         }
 
         var updated = _productService.UpdateProduct(
-            productId,
+            selectedProduct.Id,
             product.Name,
             product.Description,
             product.Category,
@@ -145,22 +145,22 @@ public sealed class AdministratorMenu
 
     private void DeleteProduct()
     {
-        ViewProducts();
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product deletion cancelled.", out var product) || product is null)
         {
-            Console.WriteLine("Product deletion cancelled.");
             return;
         }
 
-        Console.WriteLine(_productService.DeleteProduct(productId) ? "Product deleted." : "Product not found.");
+        Console.WriteLine(_productService.DeleteProduct(product.Id) ? "Product deleted." : "Product not found.");
     }
 
     private void RestockProduct()
     {
-        ViewProducts();
-        if (!ConsoleInput.TryReadInt("Product ID:", 1, int.MaxValue, out var productId))
+        var products = _productService.GetProducts();
+        PrintProducts(products);
+        if (!TryReadProduct(products, "Product restock cancelled.", out var product) || product is null)
         {
-            Console.WriteLine("Product restock cancelled.");
             return;
         }
 
@@ -170,25 +170,30 @@ public sealed class AdministratorMenu
             return;
         }
 
-        Console.WriteLine(_productService.RestockProduct(productId, quantity) ? "Product restocked." : "Product not found.");
+        Console.WriteLine(_productService.RestockProduct(product.Id, quantity) ? "Product restocked." : "Product not found.");
     }
 
     private void ViewProducts()
     {
-        ConsoleRenderer.PrintHeader("Products");
-        ConsoleRenderer.PrintProducts(_productService.GetProducts());
+        PrintProducts(_productService.GetProducts());
     }
 
     private void ViewOrders()
     {
-        ConsoleRenderer.PrintHeader("Orders");
-        ConsoleRenderer.PrintOrders(_orderService.GetAllOrders());
+        PrintOrders(_orderService.GetAllOrders());
     }
 
     private void UpdateOrderStatus()
     {
-        ViewOrders();
-        if (!ConsoleInput.TryReadInt("Order ID:", 1, int.MaxValue, out var orderId))
+        var orders = _orderService.GetAllOrders();
+        PrintOrders(orders);
+        if (!ConsoleInput.TryReadItemById(
+            "Order ID:",
+            orders,
+            order => order.Id,
+            "order",
+            out var order)
+            || order is null)
         {
             Console.WriteLine("Order status update cancelled.");
             return;
@@ -200,7 +205,7 @@ public sealed class AdministratorMenu
             return;
         }
 
-        Console.WriteLine(_orderService.UpdateOrderStatus(orderId, status) ? "Order status updated." : "Order not found.");
+        Console.WriteLine(_orderService.UpdateOrderStatus(order.Id, status) ? "Order status updated." : "Order not found.");
     }
 
     private void ViewLowStockProducts()
@@ -213,6 +218,38 @@ public sealed class AdministratorMenu
     {
         ConsoleRenderer.PrintHeader("Sales Report");
         ConsoleRenderer.PrintSalesReport(_reportService.GenerateSalesReport());
+    }
+
+    private static void PrintProducts(IReadOnlyCollection<Product> products)
+    {
+        ConsoleRenderer.PrintHeader("Products");
+        ConsoleRenderer.PrintProducts(products);
+    }
+
+    private static void PrintOrders(IReadOnlyCollection<Order> orders)
+    {
+        ConsoleRenderer.PrintHeader("Orders");
+        ConsoleRenderer.PrintOrders(orders);
+    }
+
+    private static bool TryReadProduct(
+        IReadOnlyCollection<Product> products,
+        string cancellationMessage,
+        out Product? product)
+    {
+        if (ConsoleInput.TryReadItemByIdOrName(
+            "Product ID or name:",
+            products,
+            selectedProduct => selectedProduct.Id,
+            selectedProduct => selectedProduct.Name,
+            "product",
+            out product))
+        {
+            return true;
+        }
+
+        Console.WriteLine(cancellationMessage);
+        return false;
     }
 
     private static ProductDetails? ReadProductDetails()

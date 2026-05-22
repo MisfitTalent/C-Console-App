@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace OnlineShoppingSystem;
 
 /// <summary>
@@ -67,7 +69,7 @@ public static class ConsoleInput
                 return value;
             }
 
-            Console.WriteLine($"Enter a number between {minValue} and {maxValue}.");
+            Console.WriteLine(GetNumberValidationMessage(minValue, maxValue));
         }
     }
 
@@ -92,7 +94,70 @@ public static class ConsoleInput
                 return true;
             }
 
-            Console.WriteLine($"Enter a number between {minValue} and {maxValue}.");
+            Console.WriteLine(GetNumberValidationMessage(minValue, maxValue));
+        }
+    }
+
+    /// <summary>
+    /// Reads an item selected by identifier from the supplied available items.
+    /// </summary>
+    public static bool TryReadItemById<T>(
+        string prompt,
+        IReadOnlyCollection<T> items,
+        Func<T, int> idSelector,
+        string itemName,
+        out T? selectedItem)
+        where T : class
+    {
+        while (true)
+        {
+            if (!TryReadRequiredText(prompt, out var input))
+            {
+                selectedItem = null;
+                return false;
+            }
+
+            if (int.TryParse(input, out var id))
+            {
+                selectedItem = items.FirstOrDefault(item => idSelector(item) == id);
+                if (selectedItem is not null)
+                {
+                    return true;
+                }
+            }
+
+            Console.WriteLine($"Invalid {itemName}. Available IDs: {FormatAvailableIds(items, idSelector)}.");
+        }
+    }
+
+    /// <summary>
+    /// Reads an item selected by identifier or exact name from the supplied available items.
+    /// </summary>
+    public static bool TryReadItemByIdOrName<T>(
+        string prompt,
+        IReadOnlyCollection<T> items,
+        Func<T, int> idSelector,
+        Func<T, string> nameSelector,
+        string itemName,
+        out T? selectedItem)
+        where T : class
+    {
+        while (true)
+        {
+            if (!TryReadRequiredText(prompt, out var input))
+            {
+                selectedItem = null;
+                return false;
+            }
+
+            selectedItem = FindItemByIdOrName(items, input, idSelector, nameSelector);
+            if (selectedItem is not null)
+            {
+                return true;
+            }
+
+            Console.WriteLine(
+                $"Invalid {itemName}. Available IDs: {FormatAvailableIds(items, idSelector)}, or enter the exact name.");
         }
     }
 
@@ -106,7 +171,7 @@ public static class ConsoleInput
             Console.Write(prompt);
             var input = Console.ReadLine();
 
-            if (decimal.TryParse(input, out var value) && value > 0)
+            if (TryParseMoney(input, out var value) && value > 0)
             {
                 return value;
             }
@@ -131,7 +196,7 @@ public static class ConsoleInput
                 return false;
             }
 
-            if (decimal.TryParse(input, out value) && value > 0)
+            if (TryParseMoney(input, out value) && value > 0)
             {
                 return true;
             }
@@ -161,5 +226,52 @@ public static class ConsoleInput
     {
         var cleanPrompt = prompt.Trim().TrimEnd(':');
         return $"{cleanPrompt} ({BackPromptHint}): ";
+    }
+
+    private static string GetNumberValidationMessage(int minValue, int maxValue)
+    {
+        if (maxValue == int.MaxValue)
+        {
+            return $"Enter a whole number greater than or equal to {minValue}.";
+        }
+
+        return $"Enter a number between {minValue} and {maxValue}.";
+    }
+
+    private static bool TryParseMoney(string? input, out decimal value)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            value = default;
+            return false;
+        }
+
+        var trimmedInput = input.Trim();
+        return decimal.TryParse(trimmedInput, NumberStyles.Number, CultureInfo.CurrentCulture, out value)
+            || decimal.TryParse(trimmedInput, NumberStyles.Number, CultureInfo.InvariantCulture, out value)
+            || decimal.TryParse(trimmedInput.Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static T? FindItemByIdOrName<T>(
+        IReadOnlyCollection<T> items,
+        string input,
+        Func<T, int> idSelector,
+        Func<T, string> nameSelector)
+        where T : class
+    {
+        if (int.TryParse(input, out var id))
+        {
+            return items.FirstOrDefault(item => idSelector(item) == id);
+        }
+
+        return items.FirstOrDefault(item =>
+            nameSelector(item).Equals(input.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string FormatAvailableIds<T>(IReadOnlyCollection<T> items, Func<T, int> idSelector)
+    {
+        return items.Count == 0
+            ? "none"
+            : string.Join(", ", items.Select(idSelector).OrderBy(id => id));
     }
 }
